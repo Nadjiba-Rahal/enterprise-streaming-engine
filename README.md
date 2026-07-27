@@ -1,4 +1,4 @@
-# In-Memory E-Commerce Streaming Analytics & Fraud Engine
+# Enterprise Commerce Analytics Command Center
 
 Production-grade, zero-cost real-time analytics built for portfolio review. The application simulates e-commerce behavior, streams events through an in-memory `asyncio.Queue`, scores fraud risk, persists analytical state in `duckdb.connect(":memory:")`, and presents five enterprise operating views in Streamlit.
 
