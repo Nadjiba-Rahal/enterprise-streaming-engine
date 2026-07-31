@@ -1,6 +1,4 @@
-Here is your complete, fully fixed `README.md` formatted inside a single raw Markdown block so you can copy it directly without any line breaks or syntax corruption.
 
-```markdown
 # Real-Time Event Streaming & Commerce Intelligence Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)](https://www.python.org/)
@@ -245,4 +243,3 @@ This project is open-source and available under the [MIT License](https://www.go
 
 ```
 
-```
