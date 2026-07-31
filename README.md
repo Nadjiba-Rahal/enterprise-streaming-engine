@@ -66,33 +66,3 @@ This architecture implements a high-throughput, real-time decision framework for
                   | Streamlit Command Center          |
                   | Operational tabs & live controls  |
                   +-----------------------------------+
-
-
-
-Reliability Engineering & State HygieneTo maintain production alignment, key operational considerations have been built directly into the event engine:Stateful Transactional Consistency: High-value transactions and carding velocity anomalies propagate uniform quantity and status metadata. Large injected sales correctly deplete inventory and update gross merchandise value (GMV) deterministically.Event Payload Isolation: Strictly segregates financial fields (amount) to checkout and payment events, preventing false-positive fraud flags during browsing phases (page_view, add_to_cart).Bounded Memory Windowing: Implements automated cleanup routines. The pipeline prunes state objects older than 5 minutes and executes DuckDB table retention policies (defaulting to a 30-minute window) every N processed events to eliminate memory bloat during prolonged execution.Deterministic Scenario Testing: Cart abandonment recovery workflows age abandoned carts by precise threshold values, ensuring repeatable test execution across simulation runs.Business Logic & Technical Implementation1. Fraud & Chargeback Detection EngineScores every ingested event on a continuous scale from 0.0 to 1.0:+0.45 weight for purchase amounts exceeding standard deviation thresholds (> €300).+0.50 weight for elevated carding velocity or consecutive checkout failures.+0.35 weight for impossible travel anomalies (e.g., location delta > 1000km in under 60 seconds).Events scoring >= 0.70 trigger immediate automated mitigation flags and reason code audits.2. Dynamic Demand-Based Pricing EngineCalculates rolling 60-second window aggregations per product category using DuckDB SQL. If category views exceed 30 views/min, the system suggests a automated dynamic markup (+10%) to optimize margin capture during demand spikes.3. Automated Cart Recovery PipelineEvaluates active sessions containing add_to_cart events lacking a checkout_completed event within 45 seconds. The pipeline constructs and emits structured recovery payloads (e.g., free delivery vouchers, category incentives).4. Real-Time Stock Depletion TelemetryTracks inventory decrements across active order flows. Depletion reaching stock thresholds <= 10 units triggers priority replenishment events to prevent revenue loss from unmanaged stockouts.5. System Health & Infrastructure TelemetryMonitors pipeline throughput and processing failure ratios:$$\text{Error Rate} = \left( \frac{\text{Failed Events}}{\text{Total Processed Events}} \right) \times 100$$Error rates exceeding 10% raise automated system health alerts to separate infrastructure anomalies from commercial trends.Mathematical Simulation MechanicsTraffic Ingestion RateStochastic event batching is modeled using a Poisson distribution:$$X \sim \text{Poisson}(\lambda)$$Where $\lambda$ represents configurable traffic velocity.Inter-Event Arrival TimingDelays between generated event batches follow an exponential distribution:$$T \sim \text{Exponential}\left(\frac{1}{\lambda}\right)$$This effectively simulates real-world bursty network traffic profile characteristics.Financial Value DistributionOrder transaction values follow a log-normal distribution to reflect retail consumer purchasing behaviors:$$\text{amount} \sim \text{LogNormal}(\mu = 3.5, \sigma = 0.75)$$Behavioral State TransitionsUser behaviors transition via discrete Markov chain matrices, isolating organic user patterns (NORMAL_USER) from automated malicious activity (FRAUD_BOT).Technology StackDomainTechnologyImplementationLanguagePython 3.10+Core pipeline, simulation, and analytics engineConcurrencyasyncioAsynchronous event bus implementation via asyncio.QueueData EngineDuckDBEmbedded OLAP database executing in-memory SQL over streamsUI FrameworkStreamlitReal-time operations panel and manual testing interfaceTest SuitePytestAutomated testing covering rules, state retention, and queuesRepository StructureCode snippetrealtime-fraud-streaming-engine/
-├── app/
-│   ├── __init__.py
-│   ├── generator.py       # Mathematical traffic generator & Markov models
-│   ├── pipeline.py        # Streaming pipeline, rule engine & DuckDB storage
-│   └── dashboard.py       # Streamlit operational command center
-├── tests/
-│   ├── test_pipeline.py   # Pipeline rule tests, queue ingestion, state pruning
-│   └── test_generator.py  # Simulation mathematical consistency tests
-├── requirements.txt       # Strict production dependency declarations
-└── README.md
-Local Development & Setup1. Environment SetupBash# Clone repository
-git clone [https://github.com/your-username/realtime-fraud-streaming-engine.git](https://github.com/your-username/realtime-fraud-streaming-engine.git)
-cd realtime-fraud-streaming-engine
-
-# Create and activate virtual environment
-python -m venv .venv
-
-# Linux/macOS
-source .venv/bin/activate
-
-# Windows
-.venv\Scripts\activate
-2. Dependency InstallationBashpip install -r requirements.txt
-3. ExecutionLaunch the operational command dashboard:Bashstreamlit run app/dashboard.py
-Automated Testing SuiteExecute the unit test suite covering fraud rules, memory retention, DuckDB streaming ingestion, and simulation logic:Bashpytest -v
-Deployment ArchitectureThis application is designed for zero-dependency edge execution on Streamlit Community Cloud:Push the code repository to GitHub.Connect the repository to Streamlit Cloud.Configure entrypoint path to: app/dashboard.py.Deploy instantly—no external databases, API keys, or cloud infrastructure required.LicenseThis project is open-source and available under the MIT License.
